@@ -5,6 +5,7 @@ import com.facebook.react.bridge.Callback;
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.SkuDetails;
 import com.anjlab.android.iab.v3.TransactionDetails;
+import com.facebook.react.bridge.ReactApplicationContext;
 
 public class BillingHandler implements BillingProcessor.IBillingHandler {
 
@@ -12,6 +13,7 @@ public class BillingHandler implements BillingProcessor.IBillingHandler {
     IProductPurchased mOnProductPurchasedCallback;
     IBillingError mOnBillingErrorCallback;
     IPurchaseHistoryRestored mOnPurchaseHistoryRestoredCallback;
+    BillingProcessor mBillingProcessor;
 
     public BillingHandler(IBillingInitialized onBillingInitializedCallback,
                           IProductPurchased onProductPurchasedCallback,
@@ -23,42 +25,47 @@ public class BillingHandler implements BillingProcessor.IBillingHandler {
         mOnPurchaseHistoryRestoredCallback = onPurchaseHistoryRestoredCallback;
     }
 
+    public BillingProcessor setupBillingProcessor(ReactApplicationContext _reactContext, String licenseKey, String merchantId) {
+        mBillingProcessor = new BillingProcessor(_reactContext, licenseKey, merchantId, this);
+        return mBillingProcessor;
+    }
+
     @Override
     public void onBillingInitialized() {
         if (mOnBillingInitializedCallback != null)
-            mOnBillingInitializedCallback.invoke();
+            mOnBillingInitializedCallback.invoke(mBillingProcessor);
     }
 
     @Override
     public void onProductPurchased(String productId, TransactionDetails details) {
         if (mOnProductPurchasedCallback != null)
-            mOnProductPurchasedCallback.invoke(productId, details);
+            mOnProductPurchasedCallback.invoke(mBillingProcessor, productId, details);
     }
     @Override
     public void onBillingError(int errorCode, Throwable error) {
         if (mOnBillingErrorCallback != null)
-            mOnBillingErrorCallback.invoke(errorCode, error);
+            mOnBillingErrorCallback.invoke(mBillingProcessor, errorCode, error);
     }
 
     @Override
     public void onPurchaseHistoryRestored() {
         if (mOnPurchaseHistoryRestoredCallback != null)
-            mOnPurchaseHistoryRestoredCallback.invoke();
+            mOnPurchaseHistoryRestoredCallback.invoke(mBillingProcessor);
     }
 
     public interface IBillingInitialized {
-        void invoke();
+        void invoke(BillingProcessor bp);
     }
 
     public interface IProductPurchased {
-        void invoke(String productId, TransactionDetails details);
+        void invoke(BillingProcessor bp, String productId, TransactionDetails details);
     }
 
     public interface IBillingError {
-        void invoke(int errorCode, Throwable error);
+        void invoke(BillingProcessor bp, int errorCode, Throwable error);
     }
 
     public interface IPurchaseHistoryRestored {
-        void invoke();
+        void invoke(BillingProcessor bp);
     }
 }

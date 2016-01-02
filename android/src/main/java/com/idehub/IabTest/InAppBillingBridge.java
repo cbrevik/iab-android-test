@@ -17,9 +17,10 @@ import com.facebook.react.bridge.ReadableMap;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.idehub.IabTest.BillingHandler;
+
 public class InAppBillingBridge extends ReactContextBaseJavaModule {
     ReactApplicationContext _reactContext;
-    BillingProcessor _bp;
     String LICENSE_KEY = null;
     String MERCHANT_ID = null;
 
@@ -44,36 +45,29 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getPurchaseListingDetails(String productId, Callback callback) {
         final Callback cb = callback;
-        final BillingProcessor bp = _bp;
         final String id = productId;
-        
+
         try {
-          if (isIabServiceAvailable()) {
-              BillingHandler handler = new BillingHandler(new BillingHandler.IBillingInitialized() {
-                  @Override
-                  public void invoke() {
-                      SkuDetails details = bp.getPurchaseListingDetails(id);
-                      cb.invoke(details.title);
-                  }
-              }, null, null, null);
-              setupBillingProcessor(handler);
-          }
-        }
-        finally {
-            releaseBillingProcessor();
+            if (isIabServiceAvailable()) {
+                BillingHandler handler = new BillingHandler(
+                    new BillingHandler.IBillingInitialized() {
+                        @Override
+                        public void invoke(BillingProcessor bp) {
+                            SkuDetails details = bp.getPurchaseListingDetails(id);
+                            if (details != null) {
+                                cb.invoke(details.title);
+                            }
+                            bp.release();
+                        }
+                    }, null, null, null);
+                handler.setupBillingProcessor(_reactContext, LICENSE_KEY, MERCHANT_ID);
+            }
+        } catch (Exception e) {
+            callback.invoke(null);
         }
     }
 
     private Boolean isIabServiceAvailable() {
         return BillingProcessor.isIabServiceAvailable(_reactContext);
-    }
-
-    private void setupBillingProcessor(BillingProcessor.IBillingHandler handler) {
-        _bp = new BillingProcessor(_reactContext, LICENSE_KEY, MERCHANT_ID, handler);
-    }
-
-    private void releaseBillingProcessor() {
-        if (_bp != null)
-            _bp.release();
     }
 }
