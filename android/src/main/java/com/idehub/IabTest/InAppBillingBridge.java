@@ -56,7 +56,7 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
                             SkuDetails details = bp.getPurchaseListingDetails(productId);
                             if (details != null) {
                                 WritableMap map = Arguments.createMap();
-        
+
                                 map.putString("productId", details.productId);
                                 map.putString("title", details.title);
                                 map.putString("description", details.description);

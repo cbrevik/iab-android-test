@@ -4,7 +4,7 @@ const InAppBillingBridge = require("react-native").NativeModules.InAppBillingBri
 
 class InAppBilling {
     static getPurchaseListingDetails(productId, callback) {
-      InAppBillingBridge.getPurchaseListingDetails(productId, callback);
+      return InAppBillingBridge.getPurchaseListingDetails(productId);
     }
 }
 
