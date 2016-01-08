@@ -12,11 +12,21 @@ android {
     }
 }
 
+buildscript {
+    repositories {
+        mavenCentral() // or jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.2.3'
+    }
+}
+
 repositories() {
     mavenCentral();
 }
 
 dependencies {
-    compile 'com.facebook.react:react-native:0.11.+'
+    compile 'com.facebook.react:react-native:0.17.+'
     compile 'com.anjlab.android.iab.v3:library:1.0.+'
 }

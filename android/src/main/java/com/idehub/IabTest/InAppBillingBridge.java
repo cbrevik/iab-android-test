@@ -8,11 +8,14 @@ import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.SkuDetails;
 import com.anjlab.android.iab.v3.TransactionDetails;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,19 +46,29 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getPurchaseListingDetails(String productId, Callback callback) {
-        final Callback cb = callback;
-        final String id = productId;
-
+    public void getPurchaseListingDetails(final String productId, final Promise promise) {
         try {
             if (isIabServiceAvailable()) {
                 BillingHandler handler = new BillingHandler(
                     new BillingHandler.IBillingInitialized() {
                         @Override
                         public void invoke(BillingProcessor bp) {
-                            SkuDetails details = bp.getPurchaseListingDetails(id);
+                            SkuDetails details = bp.getPurchaseListingDetails(productId);
                             if (details != null) {
-                                cb.invoke(details.title);
+                                WritableMap map = Arguments.createMap();
+        
+                                map.putString("productId", details.productId);
+                                map.putString("title", details.title);
+                                map.putString("description", details.description);
+                                map.putBoolean("isSubscription", details.isSubscription);
+                                map.putString("currency", details.currency);
+                                map.putDouble("priceValue", details.priceValue);
+                                map.putString("priceText", details.priceText);
+
+                                promise.resolve(map);
+                            }
+                            else {
+                                promise.reject("Details was not found.");
                             }
                             bp.release();
                         }
@@ -63,7 +76,7 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
                 handler.setupBillingProcessor(_reactContext, LICENSE_KEY, MERCHANT_ID);
             }
         } catch (Exception e) {
-            callback.invoke(null);
+            promise.reject("Unknown error.");
         }
     }
 
