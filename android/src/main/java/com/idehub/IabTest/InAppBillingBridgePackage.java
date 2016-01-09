@@ -1,5 +1,7 @@
 package com.idehub.IabTest;
 
+import android.app.Activity;
+
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
@@ -14,20 +16,22 @@ import com.idehub.IabTest.InAppBillingBridge;
 
 public class InAppBillingBridgePackage implements ReactPackage {
 
-    public InAppBillingBridgePackage(String licenseKey, String merchantId) {
+    public InAppBillingBridgePackage(String licenseKey, String merchantId, Activity activity) {
         _licenseKey = licenseKey;
         _merchantId = merchantId;
+        _activity = activity;
     }
 
     private String _licenseKey;
     private String _merchantId;
+    private Activity _activity;
 
     @Override
     public List<NativeModule> createNativeModules(
             ReactApplicationContext reactContext) {
         List<NativeModule> modules = new ArrayList<>();
 
-        modules.add(new InAppBillingBridge(reactContext, _licenseKey, _merchantId));
+        modules.add(new InAppBillingBridge(reactContext, _licenseKey, _merchantId, _activity));
         return modules;
     }
 

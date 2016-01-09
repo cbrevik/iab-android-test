@@ -1,5 +1,6 @@
 package com.idehub.IabTest;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,12 +27,14 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
     ReactApplicationContext _reactContext;
     String LICENSE_KEY = null;
     String MERCHANT_ID = null;
+    final Activity _activity;
 
-    public InAppBillingBridge(ReactApplicationContext reactContext, String licenseKey, String merchantId) {
+    public InAppBillingBridge(ReactApplicationContext reactContext, String licenseKey, String merchantId, Activity activity) {
         super(reactContext);
         _reactContext = reactContext;
         LICENSE_KEY = licenseKey;
         MERCHANT_ID = merchantId;
+        _activity = activity;
     }
 
     @Override
@@ -46,7 +49,27 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getPurchaseListingDetails(final String productId, final Promise promise) {
+    public void purchase(final String productId, final Promise promise){
+        try {
+            if (isIabServiceAvailable()) {
+                BillingHandler handler = new BillingHandler(
+                        new BillingHandler.IBillingInitialized() {
+                            @Override
+                            public void invoke(BillingProcessor bp) {
+                                boolean purchased = bp.purchase(_activity, productId);
+                                promise.resolve(purchased);
+                                bp.release();
+                            }
+                        }, null, null, null);
+                handler.setupBillingProcessor(_reactContext, LICENSE_KEY, MERCHANT_ID);
+            }
+        } catch (Exception e) {
+            promise.reject("Unknown error.");
+        }
+    }
+
+    @ReactMethod
+    public void getProductDetails(final String productId, final Promise promise) {
         try {
             if (isIabServiceAvailable()) {
                 BillingHandler handler = new BillingHandler(
