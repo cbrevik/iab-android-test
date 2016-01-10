@@ -12,7 +12,11 @@ var {
   View,
 } = React;
 
+var InAppBilling = require('react-native-inapp-billing');
+
 var example = React.createClass({
+  InAppBilling.purchase('android.test.purchased');
+
   render: function() {
     return (
       <View style={styles.container}>
