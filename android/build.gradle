@@ -27,6 +27,6 @@ repositories() {
 }
 
 dependencies {
-    compile 'com.facebook.react:react-native:0.17.+'
+    compile 'com.facebook.react:react-native:0.15.+'
     compile 'com.anjlab.android.iab.v3:library:1.0.+'
 }
