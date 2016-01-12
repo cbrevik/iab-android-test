@@ -55,12 +55,23 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
                         new BillingHandler.IBillingInitialized() {
                             @Override
                             public void invoke(BillingProcessor bp) {
-                                boolean purchased = bp.purchase(_activity, productId);
-                                promise.resolve(purchased);
-                                bp.release();
+                                boolean purchaseProcessStarted = bp.purchase(_activity, productId);
+                                if (!purchaseProcessStarted)
+                                    promise.reject("Could not start purchase process.");
                             }
-                        }, null, null, null);
+                        },
+                        new BillingHandler.IProductPurchased() {
+                            @Override
+                            public void invoke(BillingProcessor bp, String pId, TransactionDetails details) {
+                                if (pId == productId)
+                                {
+                                    promise.resolve(true);
+                                }
+                            }
+                        }, null, null);
                 handler.setupBillingProcessor(_reactContext, LICENSE_KEY, MERCHANT_ID);
+            } else  {
+                promise.reject("InApp billing is not available.");
             }
         } catch (Exception e) {
             promise.reject("Unknown error.");
@@ -96,6 +107,8 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
                         }
                     }, null, null, null);
                 handler.setupBillingProcessor(_reactContext, LICENSE_KEY, MERCHANT_ID);
+            } else  {
+                promise.reject("InApp billing is not available.");
             }
         } catch (Exception e) {
             promise.reject("Unknown error.");
