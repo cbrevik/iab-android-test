@@ -40,7 +40,10 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
     public InAppBillingBridge(ReactApplicationContext reactContext, Activity activity) {
         super(reactContext);
         _reactContext = reactContext;
-        LICENSE_KEY = activity.getResources().getString(R.string.RNP_GOOGLE_PLAY_TOKEN);
+        int keyResourceId =
+                _reactContext.getResources()
+                        .getIdentifier("RNP_GOOGLE_PLAY_TOKEN", "string", _reactContext.getPackageName());
+        LICENSE_KEY = _reactContext.getString(keyResourceId);
         _activity = activity;
     }
 
