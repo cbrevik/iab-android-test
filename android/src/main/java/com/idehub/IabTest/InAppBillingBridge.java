@@ -27,12 +27,20 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
     String LICENSE_KEY = null;
     String MERCHANT_ID = null;
     final Activity _activity;
-
-    public InAppBillingBridge(ReactApplicationContext reactContext, String licenseKey, String merchantId, Activity activity) {
+	
+	public InAppBillingBridge(ReactApplicationContext reactContext, String licenseKey, String merchantId, Activity activity) {
         super(reactContext);
         _reactContext = reactContext;
         LICENSE_KEY = licenseKey;
         MERCHANT_ID = merchantId;
+        _activity = activity;
+    }
+
+
+    public InAppBillingBridge(ReactApplicationContext reactContext, Activity activity) {
+        super(reactContext);
+        _reactContext = reactContext;
+        LICENSE_KEY = activity.getResources().getString(R.string.RNP_GOOGLE_PLAY_TOKEN);
         _activity = activity;
     }
 
