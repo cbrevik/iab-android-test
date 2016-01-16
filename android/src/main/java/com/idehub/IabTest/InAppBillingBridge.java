@@ -98,6 +98,31 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void consumePurchase(final String productId, final Promise promise){
+        try {
+            if (isIabServiceAvailable()) {
+                BillingHandler handler = new BillingHandler(
+                        new BillingHandler.IBillingInitialized() {
+                            @Override
+                            public void invoke(BillingProcessor bp) {
+                                boolean consumed = bp.consumePurchase(productId);
+                                if (consumed)
+                                  promise.resolve(true);
+                                else
+                                  promise.reject("Could not consume purchase");
+                            }
+                        },
+                        null, null, null);
+                handler.setupBillingProcessor(_reactContext, LICENSE_KEY, MERCHANT_ID);
+            } else  {
+                promise.reject("InApp billing is not available.");
+            }
+        } catch (Exception e) {
+            promise.reject("Unknown error.");
+        }
+    }
+
+    @ReactMethod
     public void getProductDetails(final String productId, final Promise promise) {
         try {
             if (isIabServiceAvailable()) {

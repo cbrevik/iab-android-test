@@ -10,6 +10,10 @@ class InAppBilling {
     static purchase(productId) {
       return InAppBillingBridge.purchase(productId);
     }
+
+    static consumePurchase(productId) {
+      return InAppBillingBridge.consumePurchase(productId);
+    }
 }
 
 module.exports = InAppBilling;
