@@ -27,7 +27,7 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
     String LICENSE_KEY = null;
     String MERCHANT_ID = null;
     final Activity _activity;
-	
+
 	public InAppBillingBridge(ReactApplicationContext reactContext, String licenseKey, String merchantId, Activity activity) {
         super(reactContext);
         _reactContext = reactContext;
@@ -78,8 +78,16 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
                                 {
                                     promise.resolve(true);
                                 }
+                                bp.release();
                             }
-                        }, null, null);
+                        },
+                        new BillingHandler.IBillingError() {
+                            @Override
+                            public void invoke(BillingProcessor bp, int errorCode, Throwable error) {
+                                promise.reject("Purchase failed with error " + errorCode);
+                                bp.release();
+                            }
+                        }, null);
                 handler.setupBillingProcessor(_reactContext, LICENSE_KEY, MERCHANT_ID);
             } else  {
                 promise.reject("InApp billing is not available.");
