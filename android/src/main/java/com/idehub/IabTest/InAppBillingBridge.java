@@ -110,6 +110,8 @@ public class InAppBillingBridge extends ReactContextBaseJavaModule {
                                   promise.resolve(true);
                                 else
                                   promise.reject("Could not consume purchase");
+
+                                bp.release();
                             }
                         },
                         null, null, null);
